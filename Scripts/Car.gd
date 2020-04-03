@@ -2,11 +2,14 @@ extends KinematicBody2D
 
 var wheelbase : float = 70.0
 var max_steering_angle : float = 15.0
-var engine_power : float = 500
+var engine_power : float = 1000
 var rolling_resistance : float = -0.9
 var drag_coefficient : float = -0.001
 var braking_power : float = -450
 var reverse_max_speed : float = 250
+var slip_speed : float = 400
+var traction_low : float = 0.05
+var traction_high : float = 0.4
 
 var acceleration : Vector2 = Vector2.ZERO
 var velocity : Vector2 = Vector2.ZERO
@@ -49,9 +52,12 @@ func calculate_steering(delta):
 	rear_wheel_location += velocity * delta
 	front_wheel_location += velocity.rotated(steering_angle) * delta
 	var heading : Vector2 = (front_wheel_location - rear_wheel_location).normalized()
+	var traction : float = traction_high
+	if velocity.length() > slip_speed:
+		traction = traction_low
 	var dot : float = heading.dot(velocity.normalized())
 	if dot > 0:
-		velocity = heading * velocity.length()
+		velocity = velocity.linear_interpolate(heading * velocity.length(), traction)
 	elif dot < 0:
 		velocity = heading * -min(velocity.length(), reverse_max_speed)
 	rotation = heading.angle()
