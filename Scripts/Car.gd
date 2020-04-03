@@ -5,6 +5,8 @@ var max_steering_angle : float = 15.0
 var engine_power : float = 500
 var rolling_resistance : float = -0.9
 var drag_coefficient : float = -0.001
+var braking_power : float = -450
+var reverse_max_speed : float = 250
 
 var acceleration : Vector2 = Vector2.ZERO
 var velocity : Vector2 = Vector2.ZERO
@@ -31,6 +33,8 @@ func get_input():
 	
 	if Input.is_action_pressed('forward'):
 		acceleration = transform.x * engine_power
+	if Input.is_action_pressed('back'):
+		acceleration = transform.x * braking_power
 
 func apply_friction(delta):
 	if velocity.length() < 5:
@@ -45,5 +49,9 @@ func calculate_steering(delta):
 	rear_wheel_location += velocity * delta
 	front_wheel_location += velocity.rotated(steering_angle) * delta
 	var heading : Vector2 = (front_wheel_location - rear_wheel_location).normalized()
-	velocity = heading * velocity.length()
+	var dot : float = heading.dot(velocity.normalized())
+	if dot > 0:
+		velocity = heading * velocity.length()
+	elif dot < 0:
+		velocity = heading * -min(velocity.length(), reverse_max_speed)
 	rotation = heading.angle()
