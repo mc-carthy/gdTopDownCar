@@ -6,8 +6,8 @@ var velocity : Vector2 = Vector2.ZERO
 var steering_angle : float = 0.0
 var max_speed : float = 500
 
-#func _ready():
-	#$Camera2D.make_current()
+func _ready():
+	$Camera2D.make_current()
 
 func _physics_process(delta):
 	get_input()
